@@ -1,0 +1,69 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+@model  ToDo;
+
+<div class="row">
+
+    <h1>To-Dos</h1>
+    <form asp-controller="Home" asp-action="Index" method="post">
+        <div class="col-md-9 form-group">
+            <input asp-for="@Model.todo" class="col-sm-12 form-control" type="text" name="todo" id="todo" placeholder="Add to-do..."/>
+        </div>
+        <div class="col-md-3">
+            <input type="submit" class="btn btn-sm btn-primary" value="Add" />
+            <input name="__RequestVerificationToken" type="hidden" value="<token_generated_here>">
+        </div>
+    </form>
+
+    <div class="col-sm-9" id="todo-container">
+        @foreach (var todo in ViewBag.lstToDos)
+        {
+            <div class="col-sm-12 todo-hover">
+                <div class="col-sm-1">
+                    <input type="checkbox" id="todo-chk-@todo.id" class="checkbox checkbox-inline" onchange="markComplete(@todo.id)" />
+                </div>
+                <div class="col-sm-8">
+                    <p id="todo-@todo.id">@todo.todo</p>
+                </div>
+                <div class="col-sm-3">
+                    <form asp-controller="Home" asp-action="DeleteToDo" method="post">
+                        <input type="hidden" name="id" value="@todo.id" hidden />
+                        <button class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                </div>
+                <hr class="dl-horizontal"/>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+
+    function markComplete(id) {
+
+        var isComplete = $("#todo-chk-" + id).is(":checked");
+        if (isComplete) {
+
+            $("#todo-" + id).css("text-decoration", "line-through");
+        }
+        else {
+            
+            $("#todo-" + id).css("text-decoration", "none");
+        }
+
+        $.ajax({
+            url: "/home/changeToDoStatus",
+            data: { id: id, isComplete: isComplete },
+            method: "post",
+            success: function (response) {
+
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    }
+
+</script>
